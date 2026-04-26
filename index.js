@@ -58,7 +58,7 @@ app.post("/login", async (req, res) => {
     // 3. Comparar password en backend (texto plano)
     const usuario = data[0];
 
-    if (usuario.password !== password) {
+  if (usuario.password !== password) {
       return res.status(401).json({
         error: "Contraseña incorrecta"
       });
@@ -66,13 +66,13 @@ app.post("/login", async (req, res) => {
 
     console.log("✅ Login exitoso:", email);
 
-    return res.json({
-      success: true,
-      message: "Login exitoso",
-      email: data.email,
-      nombre: data.nombre,
-      rol: data.rol
-    });
+  return res.json({
+    success: true,
+    message: "Login exitoso",
+    email: usuario.email,
+    nombre: usuario.nombre,
+    rol: usuario.rol
+  });
 
   } catch (err) {
     console.error("❌ Error en servidor:", err);
