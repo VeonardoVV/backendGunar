@@ -15,8 +15,8 @@ const PORT = process.env.PORT || 3000;
    SUPABASE
 ========================= */
 const supabase = createClient(
-  "https://ghfhxtbjzlyqhzoxioqo.supabase.co",
-  "sb_publishable_-OfqIsoeaXDHkWlMBHKLrA_k4MWGwrm"
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
 );
 
 /* =========================
@@ -24,6 +24,38 @@ const supabase = createClient(
 ========================= */
 app.get("/", (req, res) => {
   res.send("API funcionando 🚀");
+});
+
+/* =========================
+   LOGIN (SEGURO)
+========================= */
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email y password requeridos" });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("usuarios")
+      .select("*")
+      .eq("email", email)
+      .eq("password", password)
+      .single();
+
+    if (error || !data) {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
+
+    res.json({ 
+      success: true, 
+      message: "Login exitoso",
+      email: data.email 
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Error en el servidor" });
+  }
 });
 
 /* =========================
