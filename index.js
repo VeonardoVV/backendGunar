@@ -107,6 +107,22 @@ app.get("/productos", async (req, res) => {
   );
 });
 
+app.post("/productos", async (req, res) => {
+  const { nombre, precio, stock, categoria_id, fecha } = req.body;
+
+  const { data, error } = await supabase
+    .from("productos")
+    .insert([
+      { nombre, precio, stock, categoria_id, fecha }
+    ])
+    .select();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
 /* =========================
    START
 ========================= */
