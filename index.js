@@ -123,6 +123,40 @@ app.post("/productos", async (req, res) => {
 
   res.json(data);
 });
+app.put("/productos/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nombre, precio, stock, categoria_id, fecha } = req.body;
+
+  const { data, error } = await supabase
+    .from("productos")
+    .update({ nombre, precio, stock, categoria_id, fecha })
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
+app.delete("/productos/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const { data, error } = await supabase
+    .from("productos")
+    .delete()
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json({
+    message: "Producto eliminado correctamente",
+    data
+  });
+});
 /* =========================
    START
 ========================= */
