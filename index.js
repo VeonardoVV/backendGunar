@@ -14,8 +14,7 @@ const PORT = process.env.PORT || 3000;
 /* =========================
    SUPABASE
 ========================= */
-const supabase = createClient(
-  process.env.SUPABASE_URL,
+const supabase = createClient(  process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY
 );
 
@@ -25,10 +24,6 @@ const supabase = createClient(
 app.get("/", (req, res) => {
   res.send("API funcionando 🚀");
 });
-
-/* =========================
-   LOGIN (SEGURO)
-========================= */
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -37,35 +32,52 @@ app.post("/login", async (req, res) => {
   }
 
   try {
-    // Buscar usuario por email y password
+    // 1. Buscar solo por email
     const { data, error } = await supabase
       .from("usuarios")
       .select("*")
       .eq("email", email)
-      .eq("password", password);
+      .single();
 
+    // 🔴 Error real de Supabase
     if (error) {
-      console.error("❌ Error Supabase:", error.message);
-      return res.status(401).json({ error: "Credenciales inválidas" });
+      console.error("❌ Error Supabase:", error);
+      return res.status(500).json({
+        error: error.message,
+        details: error
+      });
     }
 
-    if (!data || data.length === 0) {
-      console.error("❌ No se encontró usuario con email:", email);
-      return res.status(401).json({ error: "Credenciales inválidas" });
+    // 2. Usuario no existe
+    if (!data) {
+      return res.status(401).json({
+        error: "Usuario no encontrado"
+      });
     }
 
-    const usuario = data[0];
+    // 3. Comparar password en backend (texto plano)
+    if (data.password !== password) {
+      return res.status(401).json({
+        error: "Contraseña incorrecta"
+      });
+    }
+
     console.log("✅ Login exitoso:", email);
-    res.json({ 
-      success: true, 
+
+    return res.json({
+      success: true,
       message: "Login exitoso",
-      email: usuario.email,
-      nombre: usuario.nombre,
-      rol: usuario.rol
+      email: data.email,
+      nombre: data.nombre,
+      rol: data.rol
     });
+
   } catch (err) {
-    console.error("❌ Error en catch:", err.message);
-    res.status(500).json({ error: "Error en el servidor" });
+    console.error("❌ Error en servidor:", err);
+    return res.status(500).json({
+      error: "Error interno del servidor",
+      details: err.message
+    });
   }
 });
 
