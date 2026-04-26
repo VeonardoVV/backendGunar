@@ -37,23 +37,34 @@ app.post("/login", async (req, res) => {
   }
 
   try {
+    // Buscar usuario por email y password
     const { data, error } = await supabase
       .from("usuarios")
       .select("*")
       .eq("email", email)
-      .eq("password", password)
-      .single();
+      .eq("password", password);
 
-    if (error || !data) {
+    if (error) {
+      console.error("❌ Error Supabase:", error.message);
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
+    if (!data || data.length === 0) {
+      console.error("❌ No se encontró usuario con email:", email);
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
+
+    const usuario = data[0];
+    console.log("✅ Login exitoso:", email);
     res.json({ 
       success: true, 
       message: "Login exitoso",
-      email: data.email 
+      email: usuario.email,
+      nombre: usuario.nombre,
+      rol: usuario.rol
     });
   } catch (err) {
+    console.error("❌ Error en catch:", err.message);
     res.status(500).json({ error: "Error en el servidor" });
   }
 });
