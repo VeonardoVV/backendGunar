@@ -2,5 +2,5 @@ import { createClient } from "@supabase/supabase-js";
 
 export const supabase = createClient(
   "https://ghfhxtbjzlyqhzoxioqo.supabase.co",
-  "TU_SUPABASE_KEY_AQUI"
+  "sb_publishable_qHMWePeCnxoRvPef3lYA2g_xp_Rg9Yz"
 );
