@@ -157,6 +157,37 @@ app.delete("/productos/:id", async (req, res) => {
     data
   });
 });
+
+app.get("/productos/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const { data, error } = await supabase
+    .from("productos")
+    .select(`
+      id,
+      nombre,
+      precio,
+      stock,
+      fecha,
+      categoria_id,
+      categorias:categoria_id ( nombre )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json({
+    id: data.id,
+    nombre: data.nombre,
+    precio: data.precio,
+    stock: data.stock,
+    categoria_id: data.categoria_id,
+    categoria: data.categorias?.nombre || ""
+  });
+});
 /* =========================
    START
 ========================= */
